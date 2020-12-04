@@ -40,6 +40,7 @@ abstract class Controllers {
     protected function sendSomething(int $code, array $response) {
         http_response_code($code);
         header('Content-Type: application/json');
+        header("Access-Control-Allow-Origin: *");
         echo json_encode($response);        
     }
     
