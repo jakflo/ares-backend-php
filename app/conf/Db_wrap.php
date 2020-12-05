@@ -3,6 +3,7 @@
 namespace App\Conf;
 use PDO;
 use PDOException;
+use App\utils\JsonResponse;
 
 
 class Db_wrap {
@@ -15,8 +16,8 @@ class Db_wrap {
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
         catch(PDOException $e) {
-            echo "Chyba připojení k databázi";
-            exit();            
+            JsonResponse::sendServerError(['error' => 'database connection error']);
+            exit();
         }        
     }
     
