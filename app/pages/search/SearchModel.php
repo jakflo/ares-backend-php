@@ -19,20 +19,22 @@ class SearchModel extends Models {
 
 
     public function search(string $name) {
-        @$answer = file_get_contents('http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?obch_jm=' . $name);
+        @$answer = file_get_contents('http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?obch_jm=' . $name . '&maxpoc=400');
         $this->dom = new DOMDocument;
         $domExt = new DomExtended();
         @$xmlLoaded = $this->dom->loadXML($answer);
         if (!$xmlLoaded) {
             throw new SearchModelException('no xml response received', 500);
-        }
+        }        
         $recordsFound = $domExt->firstTagValue($this->dom, 'Pocet_zaznamu');
         $this->result['recordsFound'] = intval($recordsFound);
+        
+        $tooMuchRecordsText = 'Zadané parametry vedou k výběru více subjektů než je zadáno v "Zobrazit vět". Upravte hlediska pro vyhledání.';
+        if ($recordsFound == -1 or $recordsFound > 400 or $this->getApiError() === $tooMuchRecordsText ) {
+            throw new SearchModelException('too much records returned', 999);
+        }
         if ($recordsFound == 0) {
             return $this->result;
-        }
-        if ($recordsFound == -1 or $recordsFound > 400) {
-            throw new SearchModelException('too much records returned', 999);
         }
         
         $records = $domExt->searchByTagChain($this->dom, ['Ares_odpovedi', 'Odpoved'])->getElementsByTagName('S');        
@@ -43,7 +45,7 @@ class SearchModel extends Models {
         return $this->result;
     }
     
-    public function parseRecord(DOMElement $record) {        
+    public function parseRecord(DOMElement $record) {
         $domExt = new DomExtended();
         $result = [
             'n' => $this->recordNumber, 
@@ -52,5 +54,14 @@ class SearchModel extends Models {
             'address' => $domExt->firstTagValue($record, 'jmn')
         ];        
         return $result;
+    }
+    
+    public function getApiError() {
+        $domExt = new DomExtended();
+        $help = $domExt->searchByTagChain($this->dom, ['Ares_odpovedi', 'Odpoved', 'Help'], true);
+        if ($help !== null) {
+            return $domExt->firstTagValue($help, 'R', true);
+        }
+        return null;
     }
 }
