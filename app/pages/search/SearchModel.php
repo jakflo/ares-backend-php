@@ -3,29 +3,16 @@
 namespace App\pages\search;
 use App\Conf\Models;
 use App\utils\DomExtended;
-use DOMDocument;
 use DOMElement;
 use App\conf\Exceptions\SearchModelException;
 
 class SearchModel extends Models {
-    protected $result = ['recordsFound' => 0, 'records' => []];
-    
-    /**
-     * @var DOMDocument
-     */
-    protected $dom;
-    
+    protected $result = ['recordsFound' => 0, 'records' => []];    
     protected $recordNumber = 1;
 
-
     public function search(string $name) {
-        @$answer = file_get_contents('http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?obch_jm=' . $name . '&maxpoc=400');
-        $this->dom = new DOMDocument;
-        $domExt = new DomExtended();
-        @$xmlLoaded = $this->dom->loadXML($answer);
-        if (!$xmlLoaded) {
-            throw new SearchModelException('no xml response received', 500);
-        }        
+        $this->loadApiXml('http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?obch_jm=' . $name . '&maxpoc=400');
+        $domExt = new DomExtended();                
         $recordsFound = $domExt->firstTagValue($this->dom, 'Pocet_zaznamu');
         $this->result['recordsFound'] = intval($recordsFound);
         

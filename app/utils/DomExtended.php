@@ -1,6 +1,6 @@
 <?php
 
-namespace app\utils;
+namespace App\utils;
 use App\conf\Exceptions\DomException;
 
 class DomExtended {

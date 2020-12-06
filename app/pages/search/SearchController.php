@@ -32,7 +32,7 @@ class SearchController extends Controllers {
                 JsonResponse::sendClientError(['error' => 'too much records returned']);
                 return false;
             }
-            throw new SearchModelException($e);
+            throw $e;
         }
     }
 }
