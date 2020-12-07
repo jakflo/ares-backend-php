@@ -15,4 +15,10 @@ class Date_tools {
         $date = $this->en_date_na_cz($en_date_arr[0], $without_year);
         return "{$date} {$en_date_arr[1]}";
     }
+    
+    public function czDateToEn(string $enDate) {
+        $enDateArray = explode('.', str_replace(' ', '', $enDate));
+        $dateUnix = strtotime("{$enDateArray[2]}-{$enDateArray[1]}-{$enDateArray[0]}");
+        return date('Y-m-d', $dateUnix);
+    }
 }
