@@ -35,7 +35,7 @@ class GetDetailFromApi extends Models {
         $result['datumVzniku'] = $this->enDateToCzIfNotNull($domExt->firstTagValue($answer, 'DV', true));
         $result['datumZaniku'] = $this->enDateToCzIfNotNull($domExt->firstTagValue($answer, 'DZ', true));
         $result['address'] = $this->parseAddress($domExt->searchByTagChain($answer, ['AA']));
-        $result['fieldOfActivity'] = $this->parseFieldOfActivity($domExt->searchByTagChain($answer, ['Obory_cinnosti']));        
+        $result['fieldOfActivity'] = $this->parseFieldOfActivity($domExt->searchByTagChain($answer, ['Obory_cinnosti'], true));        
         return $result;
     }
     
@@ -75,7 +75,11 @@ class GetDetailFromApi extends Models {
         ];
     }
     
-    public function parseFieldOfActivity(DOMElement $fieldOfActivity) {
+    /**
+     * @param DomElement|null $fieldOfActivity
+     * @return array
+     */
+    public function parseFieldOfActivity($fieldOfActivity) {
         if ($fieldOfActivity === null) {
             return [];
         }
